@@ -1,3 +1,6 @@
+body.br-blinded .br-label::after {
+  content: attr(redacted-label) !important;
+}
 
 li.js-issue-row.br-blind span.opened-by::after,
 span.br-redacted::after {

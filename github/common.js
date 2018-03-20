@@ -87,7 +87,7 @@ async function addFlag(textarea) {
   `);
   if (!await storage()) {
     // @ts-ignore
-    document.getElementById("br-flag").checked = true; 
+    document.getElementById("br-flag").checked = true;
   }
   button.addEventListener("click", submitReview);
 }
@@ -110,6 +110,21 @@ function augment(a) {
     if (a.tagName === "IMG" || a.querySelector("img")) {
       redacted.className = "br-avatar";
     }
+  }
+}
+
+function augmentTooltip(a) {
+  const authorElement = document.querySelector("a.author.pull-header-username");
+  const who = a.getAttribute("aria-label");
+
+  if (!(authorElement && who)) {
+    return;
+  }
+
+  const author = authorElement.textContent.trim();
+  if (who.includes(author)) {
+    a.setAttribute("redacted-label", who.replace(author, "[redacted]"));
+    a.classList.add("br-label");
   }
 }
 
@@ -140,6 +155,8 @@ observer.on("div.commit-meta .AvatarStack a.avatar", augment);
 
 observer.on("div.flash > div > a.text-emphasized", augment);
 observer.on("div.gh-header-meta span.head-ref > span.user", augment);
+
+observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
 
 async function toggle(e) {
   if (e.target.classList.contains("br-toggle")) {
