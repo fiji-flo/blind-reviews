@@ -1,5 +1,7 @@
 "use strict";
 
+const REDACTED = "[redacted]"
+
 function parsePR(url) {
   const re = /^(https:\/\/github.com)?\/([\w-]+\/[\w-]+\/pull\/\d+)/;
   const match = url.match(re);
@@ -94,37 +96,59 @@ async function addFlag(textarea) {
 
 observer.on("#submit-review #pull_request_review_body", addFlag);
 
+function getPRAuthor() {
+  const author = document.querySelector("a.author.pull-header-username");
+  return author && author.textContent.trim();
+}
+
 function augment(a) {
   if (a.classList.contains("br-author")) {
     return;
   }
-  const author = document.querySelector("a.author.pull-header-username");
+  const author = getPRAuthor();
   const who = a.getAttribute("href") || a.getAttribute("alt") || a.textContent;
 
-  if (author && who.endsWith(author.textContent.trim())) {
+  if (author && who.endsWith(author)) {
     const redacted = document.createElement("span");
-    a.parentNode.insertBefore(redacted, a);
-    redacted.className = "br-redacted";
-
+    redacted.classList.add("br-redacted");
     a.classList.add("br-author");
+
     if (a.tagName === "IMG" || a.querySelector("img")) {
       redacted.className = "br-avatar";
     }
+
+    a.parentNode.insertBefore(redacted, a);
   }
 }
 
 function augmentTooltip(a) {
-  const authorElement = document.querySelector("a.author.pull-header-username");
+  const author = getPRAuthor();
   const who = a.getAttribute("aria-label");
 
-  if (!(authorElement && who)) {
+  if (!(author && who)) {
     return;
   }
 
-  const author = authorElement.textContent.trim();
   if (who.includes(author)) {
-    a.setAttribute("redacted-label", who.replace(author, "[redacted]"));
+    a.setAttribute("redacted-label", who.replace(author, REDACTED));
     a.classList.add("br-label");
+  }
+}
+
+function augmentTitle(a) {
+  const author = getPRAuthor();
+  const who = a.title;
+
+  if (!(author && who)) {
+    return;
+  }
+
+  if (who.includes(author)) {
+    const redacted = a.cloneNode(true);
+    redacted.title = redacted.title.replace(author, REDACTED);
+    redacted.classList.add("br-title");
+    a.classList.add("br-author");
+    a.parentNode.insertBefore(redacted, a);
   }
 }
 
@@ -157,6 +181,7 @@ observer.on("div.flash > div > a.text-emphasized", augment);
 observer.on("div.gh-header-meta span.head-ref > span.user", augment);
 
 observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
+observer.on("div.gh-header-meta span.head-ref", augmentTitle);
 
 async function toggle(e) {
   if (e.target.classList.contains("br-toggle")) {
