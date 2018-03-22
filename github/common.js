@@ -146,7 +146,28 @@ function augmentTitle(a) {
   if (who.includes(author)) {
     const redacted = a.cloneNode(true);
     redacted.title = redacted.title.replace(author, REDACTED);
-    redacted.classList.add("br-title");
+    redacted.classList.add("br-hide");
+    a.classList.add("br-author");
+    a.parentNode.insertBefore(redacted, a);
+  }
+}
+
+function safeguardLink(a) {
+  const author = getPRAuthor();
+  const who = a.href;
+
+  if (!(author && who)) {
+    return;
+  }
+
+  if (who.includes(author)) {
+    const redacted = a.cloneNode(true);
+    redacted.href = "#";
+    redacted.classList.add("br-redacted");
+    redacted.classList.add("disabled");
+    redacted.setAttribute("aria-label",
+                          "Uncover PR author to view the whole file.");
+    redacted.textContent = REDACTED;
     a.classList.add("br-author");
     a.parentNode.insertBefore(redacted, a);
   }
@@ -182,6 +203,8 @@ observer.on("div.gh-header-meta span.head-ref > span.user", augment);
 
 observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
 observer.on("div.gh-header-meta span.head-ref", augmentTitle);
+
+observer.on("a.btn:nth-child(3)", safeguardLink);
 
 async function toggle(e) {
   if (e.target.classList.contains("br-toggle")) {

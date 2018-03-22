@@ -2,7 +2,7 @@ body.br-blinded .br-label::after {
   content: attr(redacted-label) !important;
 }
 
-body:not(.br-blinded) span.br-title {
+body:not(.br-blinded) span.br-hide {
   display: none !important;
 }
 
@@ -13,7 +13,7 @@ span.br-redacted::after {
 
 li.js-notification.br-blind div.AvatarStack .tooltipped,
 li.js-issue-row.br-blind span.opened-by > a,
-body:not(.br-blinded) span.br-redacted,
+body:not(.br-blinded) .br-redacted,
 body.br-blinded .br-author {
     display: none !important;
 }
