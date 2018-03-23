@@ -115,15 +115,15 @@ function augment(a) {
 
 function augmentTooltip(a) {
   const authorElement = document.querySelector("a.author.pull-header-username");
-  const who = a.getAttribute("aria-label");
+  const label = a.getAttribute("aria-label");
 
-  if (!(authorElement && who)) {
+  if (!(authorElement && label)) {
     return;
   }
 
   const author = authorElement.textContent.trim();
-  if (who.includes(author)) {
-    a.setAttribute("redacted-label", who.replace(author, "[redacted]"));
+  if (label.includes(author)) {
+    a.setAttribute("redacted-label", label.replace(author, "[redacted]"));
     a.classList.add("br-label");
   }
 }
