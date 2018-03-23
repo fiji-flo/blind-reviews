@@ -137,13 +137,13 @@ function augmentTooltip(a) {
 
 function augmentTitle(a) {
   const author = getPRAuthor();
-  const who = a.title;
+  const title = a.title;
 
-  if (!(author && who)) {
+  if (!(author && title)) {
     return;
   }
 
-  if (who.includes(author)) {
+  if (title.includes(author)) {
     const redacted = a.cloneNode(true);
     redacted.title = redacted.title.replace(author, REDACTED);
     redacted.classList.add("br-title");
