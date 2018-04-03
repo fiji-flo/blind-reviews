@@ -16,7 +16,7 @@ function storage(pr, visible) {
     if (visible != null) {
       return chrome.storage.sync.set({[pr]: +visible}, resolve);
     }
-    chrome.storage.sync.get(pr, result => resolve(result[pr]));
+    return chrome.storage.sync.get(pr, result => resolve(result[pr]));
   });
 }
 
@@ -183,18 +183,24 @@ observer.on("div.gh-header-meta span.head-ref > span.user", augment);
 observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
 observer.on("div.gh-header-meta span.head-ref", augmentTitle);
 
-async function toggle(e) {
+async function toggleHandler(e) {
   if (e.target.classList.contains("br-toggle")) {
-    const visible = !document.body.classList.toggle("br-blinded");
-    await storage(null, visible);
-
-    const flag = document.getElementById("br-flag");
-    if (flag instanceof HTMLInputElement && flag.checked) {
-      flag.checked = false;
-    }
-
-    document.body.dispatchEvent(new Event("click", {bubbles: true}));
+    let visible = await toggle();
+    toggleBrowserAction({visible});
   }
+}
+
+async function toggle() {
+  const visible = !document.body.classList.toggle("br-blinded");
+  await storage(null, visible);
+
+  const flag = document.getElementById("br-flag");
+  if (flag instanceof HTMLInputElement && flag.checked) {
+    flag.checked = false;
+  }
+
+  document.body.dispatchEvent(new Event("click", {bubbles: true}));
+  return visible;
 }
 
 // Logic to determine if a pull request should be blinded by default.
@@ -245,7 +251,20 @@ async function prHeader(a) {
 
 observer.on("a.author.pull-header-username", prHeader);
 
-document.documentElement.addEventListener("click", toggle);
+document.documentElement.addEventListener("click", toggleHandler);
 
 // Clear debris from buggy PR url parsing.
 chrome.storage.sync.remove("null");
+
+browser.runtime.onMessage.addListener(
+  msg => toggle().then(visible => { return{ visible };})
+);
+
+async function toggleBrowserAction({visible, enable=false}) {
+  if (visible == undefined) {
+    visible = await storage();
+  }
+  browser.runtime.sendMessage({ visible, enable });
+}
+
+toggleBrowserAction({enable: true});
