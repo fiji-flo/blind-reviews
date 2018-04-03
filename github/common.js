@@ -152,19 +152,6 @@ function augmentTitle(a) {
   }
 }
 
-const control = `<div id="br-toggle" class="dropdown js-menu-container">
-  <span  class="js-menu-target btn-link">
-    <button class="btn-link tooltipped tooltipped-n" aria-label="Blind Reviews"></button>
-    <span class="dropdown-caret"></span>
-  </span>
-
-  <div class="dropdown-menu-content anim-scale-in js-menu-content">
-    <div class="dropdown-menu dropdown-menu-se">
-      <button class="br-toggle dropdown-item dropdown-signout">PR author</button>
-    </div>
-  </div>
-</div>`;
-
 observer.on("div.timeline-comment-header a.author", augment);
 observer.on("div.discussion-item a.author", augment);
 observer.on("div.avatar-parent-child > a", augment);
@@ -182,13 +169,6 @@ observer.on("div.gh-header-meta span.head-ref > span.user", augment);
 
 observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
 observer.on("div.gh-header-meta span.head-ref", augmentTitle);
-
-async function toggleHandler(e) {
-  if (e.target.classList.contains("br-toggle")) {
-    let visible = await toggle();
-    toggleBrowserAction({visible});
-  }
-}
 
 async function toggle() {
   const visible = !document.body.classList.toggle("br-blinded");
@@ -238,7 +218,6 @@ async function prHeader(a) {
   }
 
   const parent = a.parentElement.previousElementSibling;
-  parent.insertAdjacentHTML("beforeend", control);
 
   let visible = await storage();
   if (visible == null) {
@@ -251,8 +230,6 @@ async function prHeader(a) {
 
 observer.on("a.author.pull-header-username", prHeader);
 
-document.documentElement.addEventListener("click", toggleHandler);
-
 // Clear debris from buggy PR url parsing.
 chrome.storage.sync.remove("null");
 
@@ -260,11 +237,4 @@ browser.runtime.onMessage.addListener(
   msg => toggle().then(visible => { return{ visible };})
 );
 
-async function toggleBrowserAction({visible, enable=false}) {
-  if (visible == undefined) {
-    visible = await storage();
-  }
-  browser.runtime.sendMessage({ visible, enable });
-}
-
-toggleBrowserAction({enable: true});
+browser.runtime.sendMessage({ sender: "content", action: "register", url: location.href});

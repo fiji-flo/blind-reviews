@@ -1,0 +1,72 @@
+:root {
+  --box: 16px;
+  --border: 1px;
+  --width: calc(var(--border) * 2  + 2 * var(--box));
+  --height: calc(var(--border) * 2  + var(--box));
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  position: relative;
+  height: 100%;
+  padding-left: calc(var(--width) + 10px);
+  margin-bottom: 0.5em;
+}
+
+label input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--width);
+  height: var(--height);
+  opacity: 0;
+  padding: 0px;
+  margin: 0px;
+}
+
+label span {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  width: var(--width);
+  height: var(--height);
+}
+
+label span:before {
+  position: absolute;
+  content: "";
+  height: var(--box);
+  width: var(--box);
+  left: var(--border);
+  bottom: var(--border);
+  background-color: white;
+  transition: .4s;
+}
+
+label input:checked ~ span {
+  background-color: #663399;
+}
+
+
+label input:checked ~ span:before {
+  transform: translateX(var(--box));
+}
+
+label span {
+  border-radius: var(--box);
+}
+
+label span:before {
+  border-radius: 50%;
+}
