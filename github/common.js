@@ -121,20 +121,6 @@ function augment(a) {
   }
 }
 
-function augmentTooltip(a) {
-  const author = getPRAuthor();
-  const label = a.getAttribute("aria-label");
-
-  if (!(author && label)) {
-    return;
-  }
-
-  if (label.includes(author)) {
-    a.setAttribute("redacted-label", label.replace(author, REDACTED));
-    a.classList.add("br-label");
-  }
-}
-
 function augmentTitle(a) {
   const author = getPRAuthor();
   const title = a.title;
@@ -167,7 +153,6 @@ observer.on("div.commit-meta .AvatarStack a.avatar", augment);
 observer.on("div.flash > div > a.text-emphasized", augment);
 observer.on("div.gh-header-meta span.head-ref > span.user", augment);
 
-observer.on(".AvatarStack-body.tooltipped", augmentTooltip);
 observer.on("div.gh-header-meta span.head-ref", augmentTitle);
 
 async function toggle() {
